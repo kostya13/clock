@@ -1,0 +1,192 @@
+Cmp-Mod V01 Created by CvPcb (2013-07-07 BZR 4022)-stable date = 18.03.2014 13:12:35
+
+BeginCmp
+TimeStamp = /53281BA9;
+Reference = BQ1;
+ValeurCmp = CRYSTAL;
+IdModule  = C1V7H;
+EndCmp
+
+BeginCmp
+TimeStamp = /52F138FE;
+Reference = DD1;
+ValeurCmp = ATTINY2313;
+IdModule  = DIP-20__300_ELL;
+EndCmp
+
+BeginCmp
+TimeStamp = /5327F909;
+Reference = DD2;
+ValeurCmp = DS1307;
+IdModule  = DIP-8__300_ELL;
+EndCmp
+
+BeginCmp
+TimeStamp = /52F13DFB;
+Reference = GB1;
+ValeurCmp = 3V;
+IdModule  = C2;
+EndCmp
+
+BeginCmp
+TimeStamp = /53280055;
+Reference = HG1;
+ValeurCmp = DA08-11EWA;
+IdModule  = DA08;
+EndCmp
+
+BeginCmp
+TimeStamp = /53280062;
+Reference = HG2;
+ValeurCmp = DA08-11EWA;
+IdModule  = DA08;
+EndCmp
+
+BeginCmp
+TimeStamp = /52F4BCDC;
+Reference = R1;
+ValeurCmp = 1к;
+IdModule  = R5;
+EndCmp
+
+BeginCmp
+TimeStamp = /52F1EB00;
+Reference = R2;
+ValeurCmp = 1к;
+IdModule  = R5;
+EndCmp
+
+BeginCmp
+TimeStamp = /5327FDFB;
+Reference = R3;
+ValeurCmp = 1к;
+IdModule  = R5;
+EndCmp
+
+BeginCmp
+TimeStamp = /5327FE01;
+Reference = R4;
+ValeurCmp = 1к;
+IdModule  = R5;
+EndCmp
+
+BeginCmp
+TimeStamp = /5327FACF;
+Reference = R5;
+ValeurCmp = 68;
+IdModule  = R3;
+EndCmp
+
+BeginCmp
+TimeStamp = /5327FAF3;
+Reference = R6;
+ValeurCmp = 68;
+IdModule  = R3;
+EndCmp
+
+BeginCmp
+TimeStamp = /5327FB2C;
+Reference = R7;
+ValeurCmp = 68;
+IdModule  = R3;
+EndCmp
+
+BeginCmp
+TimeStamp = /5327FB32;
+Reference = R8;
+ValeurCmp = 68;
+IdModule  = R3;
+EndCmp
+
+BeginCmp
+TimeStamp = /5327FB38;
+Reference = R9;
+ValeurCmp = 68;
+IdModule  = R3;
+EndCmp
+
+BeginCmp
+TimeStamp = /5327FB3E;
+Reference = R10;
+ValeurCmp = 68;
+IdModule  = R3;
+EndCmp
+
+BeginCmp
+TimeStamp = /5327FB44;
+Reference = R11;
+ValeurCmp = 68;
+IdModule  = R3;
+EndCmp
+
+BeginCmp
+TimeStamp = /53282C1A;
+Reference = R12;
+ValeurCmp = R;
+IdModule  = R5;
+EndCmp
+
+BeginCmp
+TimeStamp = /52F13A0C;
+Reference = SA1;
+ValeurCmp = SA_1-2_CL;
+IdModule  = SIL-2;
+EndCmp
+
+BeginCmp
+TimeStamp = /5327F9B0;
+Reference = SA2;
+ValeurCmp = SA_1-2_CL;
+IdModule  = SIL-2;
+EndCmp
+
+BeginCmp
+TimeStamp = /53282BF6;
+Reference = VD1;
+ValeurCmp = LED;
+IdModule  = SIL-2;
+EndCmp
+
+BeginCmp
+TimeStamp = /53282C12;
+Reference = VD2;
+ValeurCmp = LED;
+IdModule  = SIL-2;
+EndCmp
+
+BeginCmp
+TimeStamp = /52F4C8E0;
+Reference = VT1;
+ValeurCmp = КТ315;
+IdModule  = kt315;
+EndCmp
+
+BeginCmp
+TimeStamp = /52F13E6A;
+Reference = VT2;
+ValeurCmp = КТ315;
+IdModule  = kt315;
+EndCmp
+
+BeginCmp
+TimeStamp = /5327FA4E;
+Reference = VT3;
+ValeurCmp = КТ315;
+IdModule  = kt315;
+EndCmp
+
+BeginCmp
+TimeStamp = /5327FA48;
+Reference = VT4;
+ValeurCmp = КТ315;
+IdModule  = kt315;
+EndCmp
+
+BeginCmp
+TimeStamp = /5327FAC2;
+Reference = XS1;
+ValeurCmp = CONN_02_F;
+IdModule  = SIL-2;
+EndCmp
+
+EndListe
