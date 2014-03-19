@@ -1,6 +1,5 @@
 EESchema Schematic File Version 2
 LIBS:power
-LIBS:timer-cache
 LIBS:gost
 LIBS:clock-cache
 EELAYER 27 0
@@ -9,7 +8,7 @@ $Descr A4 11693 8268
 encoding utf-8
 Sheet 1 1
 Title ""
-Date "18 mar 2014"
+Date "19 mar 2014"
 Rev ""
 Comp ""
 Comment1 ""
@@ -327,12 +326,12 @@ Connection ~ 7550 2000
 $Comp
 L POWER_VCC #?
 U 1 1 5327FFC0
-P 6450 4650
-F 0 "#?" V 6250 4400 60  0001 C CNN
-F 1 "POWER_VCC" H 6600 4550 60  0001 C CNN
-F 2 "" H 6450 4650 60  0000 C CNN
-F 3 "" H 6450 4650 60  0000 C CNN
-	1    6450 4650
+P 6450 4450
+F 0 "#?" V 6250 4200 60  0001 C CNN
+F 1 "POWER_VCC" H 6600 4350 60  0001 C CNN
+F 2 "" H 6450 4450 60  0000 C CNN
+F 3 "" H 6450 4450 60  0000 C CNN
+	1    6450 4450
 	0    1    -1   0   
 $EndComp
 $Comp
@@ -753,4 +752,36 @@ F 3 "" H 9150 3950 60  0000 C CNN
 	1    9150 3950
 	0    1    -1   0   
 $EndComp
+$Comp
+L R R14
+U 1 1 53296CF2
+P 6250 4700
+F 0 "R14" H 6350 4700 50  0000 C CNN
+F 1 "R" V 6250 4700 50  0000 C CNN
+F 2 "~" H 6250 4700 60  0000 C CNN
+F 3 "~" H 6250 4700 60  0000 C CNN
+	1    6250 4700
+	1    0    0    -1  
+$EndComp
+$Comp
+L R R13
+U 1 1 53296CF8
+P 6050 4700
+F 0 "R13" H 5950 4750 50  0000 C CNN
+F 1 "R" V 6050 4700 50  0000 C CNN
+F 2 "~" H 6050 4700 60  0000 C CNN
+F 3 "~" H 6050 4700 60  0000 C CNN
+	1    6050 4700
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6450 4450 6050 4450
+Wire Wire Line
+	6450 4650 6450 4450
+Wire Wire Line
+	6250 4950 6250 5050
+Connection ~ 6250 5050
+Wire Wire Line
+	6050 4950 6050 5250
+Connection ~ 6050 5250
 $EndSCHEMATC

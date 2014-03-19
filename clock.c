@@ -7,54 +7,114 @@
 // MCU - тип микроконтроллера
 // определены в Makefile
 
-
-#include <avr/io.h>
+#include <avr/cpufunc.h>
+#include <avr/eeprom.h>
 #include <avr/interrupt.h>
-#include <util/delay.h>
+#include <avr/io.h>
+#include <avr/pgmspace.h>
+#include <inttypes.h>
 
 #include "ds1307/ds1307.h"
+
+#define TIMER_FREQ 100UL // Требуемая частота таймера (Герц)
+#define TIMER_PRESCALER 1 // Установить значение делителя таймера в TCCR1B (Bits 2:0)
+
+#define MAX_TIMER  (F_CPU / TIMER_PRESCALER) / TIMER_FREQ // максимальное значение таймера в режиме CTC
+#if MAX_TIMER > UINT16_MAX
+// значение MAX_TIMER слишком большое, необходимо увеличить TIMER_PRESCALER.
+# error "MAX_TIMER too large, need increase TIMER_PRESCALER."
+#endif
+
+
+#define low(x)  ((x) & 0xFF)
+#define high(x) (((x) >> 8) & 0xFF)
+
+#define set_bit(port,bit)   port |= _BV(bit)
+#define reset_bit(port,bit) port &= ~(_BV(bit))
+
+
+const uint8_t READ_INTERVAL = 100; // интервал чтения времени из DS1307
 
 uint8_t hour[2];
 uint8_t minute[2];
 uint8_t second[2];
 
+const int8_t led_digits[] PROGMEM = {64, 121, 36, 48, 25, 18, 2, 120, 0, 16};
+
+enum TRUE_FALSE {FALSE = 0, TRUE = 1};
+
+//динамическая индикация
 ISR (TIMER0_COMPA_vect)
+{
+  static const uint8_t MAX_DIGIT = 4;
+  static uint8_t current_digit = 0;
+
+  //погасить текущий
+  
+  //зажечь следующий индикатор
+  switch(current_digit)
+  {
+  case 0:
+    break;
+  case 1:
+    break;
+  case 2:
+    break;
+  case 3:
+    break;
+  default:
+    break;
+  };
+  
+  current_digit++;
+  if(current_digit == MAX_DIGIT)
+    current_digit = 0;
+}
+
+// отсчет интервалов считывания показаний
+ISR (TIMER1_COMPA_vect)
+{
+  static uint8_t counter = 0;
+
+  counter++;
+  if(counter == READ_INTERVAL)
+  {
+    get_time = TRUE;
+    counter = 0;
+  }
+}
+
+// опрос кнопок
+ISR (TIMER1_COMPB_vect)
 {
 }
 
 int main(void)
 {
-
-
-  // CTC mode
-  TCCR0A =  _BV(WGM01);
-  //prescaler at 8
-  TCCR0B = _BV(CS01);
-  TCNT0 = 0x00;
-  // max value
+  TCCR0A =  _BV(WGM01);  // CTC mode
+  TCCR0B = _BV(CS01);  //prescaler at 8
   OCR0A = 130;
   OCR0B = 0;
-
-
-  // CTC mode
-  TCCR1A =  _BV(WGM12);
-  // max value
-  OCR0A = 255;
-  //prescaler at 8
-  TCCR1B = _BV(CS11);
+ 
+  TCCR1A =  _BV(WGM12);  // CTC mode
+  TCCR1B = _BV(CS10);  //prescaler at 1
+  OCR1AH = high(MAX_TIMER);
+  OCR1AL = low(MAX_TIMER);
+  OCR1BH = 0x00;
+  OCR1BL = 0x00;
   
-  // выключаем Universal Serial Interface
-  USICR=0x00;
-  // выключаем Analog Comparator 
-  ACSR=0x80;
+  ACSR= _BV(ACD);  // выключаем Analog Comparator 
   
   // прерывания от таймеров
-  TIMSK =  _BV(OCIE0A) |  _BV(OCIE1A);
+  TIMSK =  _BV(OCIE0A) | _BV(OCIE1A) | _BV(OCIE1B);
+
   
   //init ds1307
   ds1307_init();
 
-  sei();
+  
+  get_time = FALSE;
+  set_time = FALSE;
 
   uint8_t year = 0;
   uint8_t month = 0;
@@ -66,12 +126,13 @@ int main(void)
 
 //check set date
 //  ds1307_setdate(1, 1, 1, 1, 1, 1);
-
+  sei();
+  
   for(;;)
   {
-    if(get_date)
-      ds1307_getdate(&hour, &minute, &second);
-    if(set_date)
-      ds1307_setdate(&hour, &minute, &second);
+    if(get_time)
+      ds1307_gettime(&hour, &minute, &second);
+    if(set_time)
+      ds1307_settime(&hour, &minute, &second);
   }
 }
