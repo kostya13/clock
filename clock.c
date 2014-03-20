@@ -46,10 +46,17 @@ enum TRUE_FALSE {FALSE = 0, TRUE = 1};
 //динамическая индикация
 ISR (TIMER0_COMPA_vect)
 {
-  static const uint8_t MAX_DIGIT = 4;
-  static uint8_t current_digit = 0;
+  static const uint8_t OFFSET = 2;
+  static const uint8_t MAX_DIGIT = 3 + OFFSET;
+  static uint8_t current_digit = MAX_DIGIT;
 
-  //погасить текущий
+   //погасить текущий
+  reset_bit(PORTD, current_digit);
+  PORTB = 0xFF;
+
+  current_digit++;
+  if(current_digit > MAX_DIGIT)
+    current_digit = OFFSET;
   
   //зажечь следующий индикатор
   switch(current_digit)
@@ -65,10 +72,7 @@ ISR (TIMER0_COMPA_vect)
   default:
     break;
   };
-  
-  current_digit++;
-  if(current_digit == MAX_DIGIT)
-    current_digit = 0;
+ 
 }
 
 // отсчет интервалов считывания показаний
