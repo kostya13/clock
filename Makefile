@@ -6,7 +6,7 @@
 MY_MCU = attiny2313
 
 # Частота кварцевого резонатора (Hz)
-MY_F_CPU = 8000000
+MY_F_CPU = 1000000
 
 # Название файла проекта (без расширения)
 MY_TARGET = clock
@@ -22,8 +22,6 @@ MY_AVRDUDE_PROGRAMMER = usbasp
 OPTIMIZATION_LEVEL = s
 
 #=======================================
-
-
 # On command line:
 #
 # make all = Make software.
@@ -66,7 +64,7 @@ OBJDIR = obj
 
 
 # List C source files here. (C dependencies are automatically generated.)
-SRC =$(TARGET).c  uart.c  ds1307.c
+SRC =$(TARGET).c ds1307.c
 
 
 # List C++ source files here. (C dependencies are automatically generated.)
@@ -272,8 +270,8 @@ AVRDUDE_WRITE_FLASH = -U flash:w:$(TARGET).hex
 # to submit bug reports.
 #AVRDUDE_VERBOSE = -v -v
 
-#AVRDUDE_FLAGS = -p $(MCU) -P $(AVRDUDE_PORT) -c $(AVRDUDE_PROGRAMMER)
-AVRDUDE_FLAGS = -p $(MCU)  -c $(AVRDUDE_PROGRAMMER)
+#AVRDUDE_FLAGS = -V -p $(MCU) -P $(AVRDUDE_PORT) -c $(AVRDUDE_PROGRAMMER)
+AVRDUDE_FLAGS = -V -p $(MCU)  -c $(AVRDUDE_PROGRAMMER)
 AVRDUDE_FLAGS += $(AVRDUDE_NO_VERIFY)
 AVRDUDE_FLAGS += $(AVRDUDE_VERBOSE)
 AVRDUDE_FLAGS += $(AVRDUDE_ERASE_COUNTER)
@@ -422,8 +420,8 @@ gccversion :
 
 
 # Program the device.  
-program: $(TARGET).hex $(TARGET).eep
-	$(AVRDUDE) $(AVRDUDE_FLAGS) $(AVRDUDE_WRITE_FLASH) $(AVRDUDE_WRITE_EEPROM)
+program: $(TARGET).hex 
+	$(AVRDUDE) $(AVRDUDE_FLAGS) $(AVRDUDE_WRITE_FLASH)
 
 
 # Generate avr-gdb config/init file which does the following:
