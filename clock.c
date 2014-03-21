@@ -16,8 +16,8 @@
 
 #include "ds1307.h"
 
-#define TIMER_FREQ 100UL // Требуемая частота таймера (Герц)
-#define TIMER_PRESCALER 1 // Установить значение делителя таймера в TCCR1B (Bits 2:0)
+#define TIMER_FREQ 1UL // Требуемая частота таймера (Герц)
+#define TIMER_PRESCALER 256 // Установить значение делителя таймера в TCCR1B (Bits 2:0)
 
 #define MAX_TIMER  (F_CPU / TIMER_PRESCALER) / TIMER_FREQ // максимальное значение таймера в режиме CTC
 #if MAX_TIMER > UINT16_MAX
@@ -41,11 +41,12 @@
 
 uint8_t time[4];
 
+uint8_t read_time = 1;
+uint8_t oldkeys = ALL_KEYS_UP;
+
 const int8_t led_digits[] = {64, 121, 36, 48, 25, 18, 2, 120, 0, 16};
 
 uint8_t current_digit = FIRST_DIGIT;
-uint8_t read_counter = 0;
-uint8_t oldkeys = ALL_KEYS_UP;
 
 //динамическая индикация
 ISR (TIMER0_COMPA_vect)
@@ -64,21 +65,11 @@ ISR (TIMER0_COMPA_vect)
 
 }
 
-// отсчет интервалов считывания показаний
-ISR (TIMER1_COMPA_vect)
-{
-  read_counter++;
-  if(read_counter > READ_INTERVAL)
-  {
-    read_counter = 0;
-    ds1307_gettime(time);  
-  }
-}
 
-// опрос кнопок
-ISR (TIMER1_COMPB_vect)
+uint8_t is_key_pressed(void)
 {
   uint8_t keys = PIND & 0x03;
+  uint8_t pressed = 0;
 
   //установка часов
   if (!(keys & HOUR_KEY) && (oldkeys & HOUR_KEY))
@@ -91,12 +82,10 @@ ISR (TIMER1_COMPB_vect)
     }
     if (time[0]>2)
       time[0]=0;
-    
-    ds1307_settime(time);
+    pressed = 1;
   }
-
   //установка минут
-  if ( !(keys & MINUTE_KEY) && (oldkeys & MINUTE_KEY))
+  else if ( !(keys & MINUTE_KEY) && (oldkeys & MINUTE_KEY))
   {
     time[3]++;
     if (time[3]>9)
@@ -107,10 +96,17 @@ ISR (TIMER1_COMPB_vect)
 
     if (time[2]>5)
       time[2]=0;
-    
-    ds1307_settime(time);
+
+    pressed = 1;    
   }
   oldkeys = keys;
+  return pressed;    
+}
+
+// отсчет интервалов считывания показаний
+ISR (TIMER1_COMPA_vect)
+{
+  read_time = 1;
 }
 
 int main(void)
@@ -127,23 +123,30 @@ int main(void)
   OCR0B = 0;
  
   TCCR1A =  _BV(WGM12);  // CTC mode
-  TCCR1B = _BV(CS10);  //prescaler at 1
+  TCCR1B = _BV(CS12);  //prescaler at 256
   OCR1AH = high(MAX_TIMER);
   OCR1AL = low(MAX_TIMER);
-  OCR1BH = 0x00;
-  OCR1BL = 0x00;
   
   ACSR = _BV(ACD);  // выключаем Analog Comparator 
   
-  // прерывания от таймеров
-  TIMSK = _BV(OCIE0A) | _BV(OCIE1A) | _BV(OCIE1B);
+  // разрешение прерывания от таймеров
+  TIMSK = _BV(OCIE0A) | _BV(OCIE1A);
   
-  //init ds1307
   ds1307_init();
-  
   sei();
-  
+
   for(;;)
   {
+    if(read_time)
+    {
+      read_time = 0;
+      ds1307_gettime(time);
+    }
+    if(is_key_pressed())
+    {
+      ds1307_settime(time);
+    }
+  
+    
   }
 }
