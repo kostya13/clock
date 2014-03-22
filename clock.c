@@ -17,14 +17,24 @@
 
 #include "ds1307.h"
 
-#define TIMER_FREQ 100UL // Требуемая частота таймера (Герц)
-#define TIMER_PRESCALER 256 // Установить значение делителя таймера в TCCR1B (Bits 2:0)
+#define TIMERB_FREQ 1UL // Требуемая частота таймера (Герц)
+#define TIMERB_PRESCALER 256 // Установить значение делителя таймера в TCCR1B (Bits 2:0)
 
-#define MAX_TIMER  (F_CPU / TIMER_PRESCALER) / TIMER_FREQ // максимальное значение таймера в режиме CTC
-#if MAX_TIMER > UINT16_MAX
-// значение MAX_TIMER слишком большое, необходимо увеличить TIMER_PRESCALER.
-# error "MAX_TIMER too large, need increase TIMER_PRESCALER."
+#define MAX_TIMERB  (F_CPU / TIMERB_PRESCALER) / TIMERB_FREQ // максимальное значение таймера в режиме CTC
+#if MAX_TIMERB > UINT16_MAX
+// значение MAX_TIMERB слишком большое, необходимо увеличить TIMER_PRESCALERB.
+# error "MAX_TIMERB too large, need increase TIMER_PRESCALERB."
 #endif
+
+#define TIMERA_FREQ 1000UL // Требуемая частота таймера (Герц)
+#define TIMERA_PRESCALER 256 // Установить значение делителя таймера в TCCR0A (Bits 2:0)
+
+#define MAX_TIMERA  (F_CPU / TIMERA_PRESCALER) / TIMERA_FREQ // максимальное значение таймера в режиме CTC
+#if MAX_TIMERA > UINT8_MAX
+// значение MAX_TIMERA слишком большое, необходимо увеличить TIMER_PRESCALERA.
+# error "MAX_TIMERA too large, need increase TIMER_PRESCALERA."
+#endif
+
 
 #define low(x)  ((x) & 0xFF)
 #define high(x) (((x) >> 8) & 0xFF)
@@ -49,7 +59,6 @@ volatile uint8_t oldkeys = ALL_KEYS_UP;
 
 volatile uint8_t current_digit = FIRST_DIGIT;
 
-
 inline void show_clock(void)
 {
   //погасить текущий
@@ -64,7 +73,6 @@ inline void show_clock(void)
   //зажечь следующий индикатор
   set_bit(PORTD, current_digit);
 }
-
 
 inline void is_key_pressed(void)
 {
@@ -111,16 +119,17 @@ ISR (TIMER0_COMPA_vect)
   show_clock();
 }
 
-// отсчет интервалов считывания показаний
-ISR (TIMER1_COMPA_vect)
-{
-  read_time = 1;
-}
-
 //опрос клавиатуры
 ISR (TIMER0_COMPB_vect)
 {
   is_key_pressed();
+}
+
+// отсчет интервалов считывания показаний
+ISR (TIMER1_COMPA_vect)
+{
+  if(!read_time)
+    read_time = 1;
 }
 
 int main(void)
@@ -133,12 +142,12 @@ int main(void)
   
   TCCR0A =  _BV(WGM01);  // CTC mode
   TCCR0B = _BV(CS02);  //prescaler at 256
-  OCR0A = 5;
+  OCR0A = MAX_TIMERA;
   OCR0B = 1;
  
   TCCR1B = _BV(WGM12) | _BV(CS12);  //CTC mode; prescaler at 256
-  OCR1AH = high(MAX_TIMER);
-  OCR1AL = low(MAX_TIMER);
+  OCR1AH = high(MAX_TIMERB);
+  OCR1AL = low(MAX_TIMERB);
   
   ACSR = _BV(ACD);  // выключаем Analog Comparator 
   

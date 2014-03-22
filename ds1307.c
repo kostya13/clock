@@ -44,7 +44,7 @@ void ds1307_gettime(uint8_t *time)
   uint8_t hour ;
 
   i2c_start_wait(DS1307_ADDR | I2C_WRITE);
-  i2c_write(0x00);
+  i2c_write(0x01);
   i2c_rep_start(DS1307_ADDR | I2C_READ);
   minute = i2c_readAck();
   hour = i2c_readNak();
