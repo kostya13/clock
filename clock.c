@@ -53,8 +53,8 @@ volatile uint8_t current_digit = FIRST_DIGIT;
 inline void show_clock(void)
 {
   //погасить текущий
-//  reset_bit(PORTD, current_digit);
-  PORTD =  0x03;
+  reset_bit(PORTD, current_digit);
+//  PORTD =  0x03;
 //  int a=0;
 //  for(int i=0;i<255;i++)a++;
 
@@ -62,13 +62,8 @@ inline void show_clock(void)
   if(current_digit > LAST_DIGIT)
     current_digit = FIRST_DIGIT;
 
-
   uint8_t c = time[current_digit - FIRST_DIGIT];
   PORTB = led_digits[c];//
-//  _delay_ms(1)
-//  _delay_ms(1);
-
- 
   //зажечь следующий индикатор
   set_bit(PORTD, current_digit);
 //  PORTD = 1 << current_digit | 0x03;
@@ -112,6 +107,15 @@ inline void is_key_pressed(void)
   }
   oldkeys = keys;
   key_pressed =  pressed;    
+/*
+  if(key_pressed)
+    {
+      //    cli();    
+      ds1307_settime(time);
+      //sei();
+      key_pressed = 0;
+    }
+*/
 }
 
 //динамическая индикация
@@ -124,6 +128,7 @@ ISR (TIMER0_COMPA_vect)
 ISR (TIMER1_COMPA_vect)
 {
   read_time = 1;
+
 }
 
 //опрос клавиатуры
@@ -155,30 +160,26 @@ int main(void)
   TIMSK = _BV(OCIE0A) | _BV(OCIE0B) | _BV(OCIE1A);
   
   ds1307_init();
-//   time[0]=1;time[1]=2;time[2]=3;time[3]=4;
-
-  // ds1307_settime(time);
-//  time[0]=2;time[1]=2;time[2]=5;time[3]=5;
-
-   ds1307_gettime(time);
+  ds1307_gettime(time);
 
   sei();
 
   for(;;)
   {
     
-    if(read_time)
+      if(read_time)
     {
           read_time = 0;
-          cli();    
-          ds1307_gettime(time);
-          sei();
+          //  cli();
+            ds1307_gettime(time);
+
+          //sei();
     }
     if(key_pressed)
     {
-      cli();    
+      //    cli();    
       ds1307_settime(time);
-      sei();
+      //sei();
       key_pressed = 0;
     }
     
