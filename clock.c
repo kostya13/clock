@@ -22,7 +22,6 @@
 
 #define MAX_TIMERB  (F_CPU / TIMERB_PRESCALER) / TIMERB_FREQ // максимальное значение таймера в режиме CTC
 #if MAX_TIMERB > UINT16_MAX
-// значение MAX_TIMERB слишком большое, необходимо увеличить TIMER_PRESCALERB.
 # error "MAX_TIMERB too large, need increase TIMER_PRESCALERB."
 #endif
 
@@ -31,7 +30,6 @@
 
 #define MAX_TIMERA  (F_CPU / TIMERA_PRESCALER) / TIMERA_FREQ // максимальное значение таймера в режиме CTC
 #if MAX_TIMERA > UINT8_MAX
-// значение MAX_TIMERA слишком большое, необходимо увеличить TIMER_PRESCALERA.
 # error "MAX_TIMERA too large, need increase TIMER_PRESCALERA."
 #endif
 
@@ -61,37 +59,37 @@ volatile uint8_t current_digit = FIRST_DIGIT;
 
 inline void show_clock(void)
 {
-  //погасить текущий
-  reset_bit(PORTD, current_digit);
+//погасить текущий
+reset_bit(PORTD, current_digit);
 
-  current_digit++;
-  if(current_digit > LAST_DIGIT)
-    current_digit = FIRST_DIGIT;
+current_digit++;
+if(current_digit > LAST_DIGIT)
+current_digit = FIRST_DIGIT;
 
-  PORTB = led_digits[time[current_digit - FIRST_DIGIT]];
+PORTB = led_digits[time[current_digit - FIRST_DIGIT]];
 
-  //зажечь следующий индикатор
-  set_bit(PORTD, current_digit);
+//зажечь следующий индикатор
+set_bit(PORTD, current_digit);
 }
 
 inline void is_key_pressed(void)
 {
-  uint8_t keys = PIND & 0x03;
-  uint8_t pressed = 0;
-  if(key_pressed)
-    return;
-  
-  //установка часов
-  if (!(keys & HOUR_KEY) && (oldkeys & HOUR_KEY))
-  {
-    time[1]++;
-    if ((time[1]>9 && time[0]<2) || (time[1]>3 && time[0]==2 )  )
-    {
-      time[1] = 0;
-      time[0]++;
-    }
-    if (time[0]>2)
-      time[0]=0;
+uint8_t keys = PIND & 0x03;
+uint8_t pressed = 0;
+if(key_pressed)
+return;
+
+//установка часов
+if (!(keys & HOUR_KEY) && (oldkeys & HOUR_KEY))
+{
+time[1]++;
+if ((time[1]>9 && time[0]<2) || (time[1]>3 && time[0]==2 )  )
+{
+time[1] = 0;
+time[0]++;
+}
+if (time[0]>2)
+time[0]=0;
     pressed = 1;
   }
   //установка минут
@@ -128,8 +126,7 @@ ISR (TIMER0_COMPB_vect)
 // отсчет интервалов считывания показаний
 ISR (TIMER1_COMPA_vect)
 {
-  if(!read_time)
-    read_time = 1;
+  read_time = 1;
 }
 
 int main(void)
@@ -155,7 +152,6 @@ int main(void)
   TIMSK = _BV(OCIE0A) | _BV(OCIE0B) | _BV(OCIE1A);
   
   ds1307_init();
-  ds1307_gettime(time);
 
   sei();
 
@@ -166,6 +162,7 @@ int main(void)
       ds1307_gettime(time);
       read_time = 0;
     }
+
     if(key_pressed)
     {
       ds1307_settime(time);
