@@ -1,6 +1,6 @@
-update=18.03.2014 12:12:11
+update=Вс. 23 марта 2014 00:27:05
 version=1
-last_client=pcbnew
+last_client=eeschema
 [cvpcb]
 version=1
 NetIExt=net
@@ -8,18 +8,6 @@ NetIExt=net
 EquName1=devcms
 [general]
 version=1
-[eeschema]
-version=1
-LibDir=D:/avr/kicad/library
-NetFmtName=
-RptD_X=0
-RptD_Y=100
-RptLab=1
-LabSize=60
-[eeschema/libraries]
-LibName1=power
-LibName2=timer-cache
-LibName3=D:/avr/kicadlib/library/gost
 [pcbnew]
 version=1
 LastNetListRead=
@@ -53,3 +41,16 @@ LibName9=dip_sockets
 LibName10=pga_sockets
 LibName11=valves
 LibName12=custom
+[eeschema]
+version=1
+LibDir=D:/avr/kicad/library
+NetFmtName=
+RptD_X=0
+RptD_Y=100
+RptLab=1
+LabSize=60
+[eeschema/libraries]
+LibName1=power
+LibName2=timer-cache
+LibName3=D:/avr/kicadlib/library/gost
+LibName4=/home/kostya/avr/kicadlib/library/gost
