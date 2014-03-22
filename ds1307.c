@@ -20,24 +20,19 @@ Please refer to LICENSE file for licensing information.
  * initialize the clock
  */
 void ds1307_init() {
-	#if DS1307_I2CINIT == 1
-	//init i2c
 	i2c_init();
-	_delay_us(10);
-	#endif
 }
 
 uint8_t ds1307_settime(uint8_t* time) {
   uint8_t minute = time[2]<<4 | time[3];
-  uint8_t hour =  time[0]<<4 | time[1];;
+  uint8_t hour =  time[0]<<4 | time[1];
   
   //write date
   i2c_start_wait(DS1307_ADDR | I2C_WRITE);
-  i2c_write(0x00);//stop oscillator
+  i2c_write(0x00);
   i2c_write(0);
   i2c_write(minute);
   i2c_write(hour);
-  i2c_write(0x00); //start oscillator
   i2c_stop();
 
   return 1;
@@ -49,11 +44,9 @@ void ds1307_gettime(uint8_t *time)
   uint8_t hour ;
 
   i2c_start_wait(DS1307_ADDR | I2C_WRITE);
-  i2c_write(0x00);//stop oscillator
-  i2c_stop();
-
+  i2c_write(0x01);
   i2c_rep_start(DS1307_ADDR | I2C_READ);
-  i2c_readAck(); // read seconds
+  //i2c_readAck(); // read seconds
   minute = i2c_readAck();
   hour = i2c_readNak();
   i2c_stop();

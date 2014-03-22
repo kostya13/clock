@@ -72,7 +72,7 @@
   .stabs  "i2cmaster.S",100,0,0,i2c_delay_T2
   .func i2c_delay_T2  ; delay 5.0 microsec with 4 Mhz crystal 
 i2c_delay_T2:        ; 4 cycles
-  rjmp 1f      ; 2   "
+  rjmp 6f      ; 2   "
 1:  rjmp 2f      ; 2   "
 2:  rjmp 3f      ; 2   "
 3:  rjmp 4f      ; 2   "

@@ -13,10 +13,11 @@
 #include <avr/io.h>
 #include <avr/pgmspace.h>
 #include <inttypes.h>
+#include "util/delay.h"
 
 #include "ds1307.h"
 
-#define TIMER_FREQ 1UL // Требуемая частота таймера (Герц)
+#define TIMER_FREQ 100UL // Требуемая частота таймера (Герц)
 #define TIMER_PRESCALER 256 // Установить значение делителя таймера в TCCR1B (Bits 2:0)
 
 #define MAX_TIMER  (F_CPU / TIMER_PRESCALER) / TIMER_FREQ // максимальное значение таймера в режиме CTC
@@ -31,7 +32,6 @@
 #define set_bit(port,bit)   port |= _BV(bit)
 #define reset_bit(port,bit) port &= ~(_BV(bit))
 
-#define READ_INTERVAL 10
 #define FIRST_DIGIT 2
 #define LAST_DIGIT  5
 
@@ -39,38 +39,49 @@
 #define HOUR_KEY 1
 #define MINUTE_KEY 2
 
+const  int8_t led_digits[] = {64, 121, 36, 48, 25, 18, 2, 120, 0, 16};
+
 uint8_t time[4];
 
-uint8_t read_time = 1;
-uint8_t oldkeys = ALL_KEYS_UP;
+volatile uint8_t read_time = 1;
+volatile uint8_t key_pressed = 0;
+volatile uint8_t oldkeys = ALL_KEYS_UP;
 
-const int8_t led_digits[] = {64, 121, 36, 48, 25, 18, 2, 120, 0, 16};
+volatile uint8_t current_digit = FIRST_DIGIT;
 
-uint8_t current_digit = FIRST_DIGIT;
 
-//динамическая индикация
-ISR (TIMER0_COMPA_vect)
+inline void show_clock(void)
 {
   //погасить текущий
-  reset_bit(PORTD, current_digit);
+//  reset_bit(PORTD, current_digit);
+  PORTD =  0x03;
+//  int a=0;
+//  for(int i=0;i<255;i++)a++;
 
   current_digit++;
   if(current_digit > LAST_DIGIT)
     current_digit = FIRST_DIGIT;
-  
-  PORTB = led_digits[time[current_digit - FIRST_DIGIT]];
 
+
+  uint8_t c = time[current_digit - FIRST_DIGIT];
+  PORTB = led_digits[c];//
+//  _delay_ms(1)
+//  _delay_ms(1);
+
+ 
   //зажечь следующий индикатор
   set_bit(PORTD, current_digit);
-
+//  PORTD = 1 << current_digit | 0x03;
 }
 
 
-uint8_t is_key_pressed(void)
+inline void is_key_pressed(void)
 {
   uint8_t keys = PIND & 0x03;
   uint8_t pressed = 0;
-
+  if(key_pressed)
+    return;
+  
   //установка часов
   if (!(keys & HOUR_KEY) && (oldkeys & HOUR_KEY))
   {
@@ -100,13 +111,25 @@ uint8_t is_key_pressed(void)
     pressed = 1;    
   }
   oldkeys = keys;
-  return pressed;    
+  key_pressed =  pressed;    
+}
+
+//динамическая индикация
+ISR (TIMER0_COMPA_vect)
+{
+  show_clock();
 }
 
 // отсчет интервалов считывания показаний
 ISR (TIMER1_COMPA_vect)
 {
   read_time = 1;
+}
+
+//опрос клавиатуры
+ISR (TIMER0_COMPB_vect)
+{
+  is_key_pressed();
 }
 
 int main(void)
@@ -120,33 +143,44 @@ int main(void)
   TCCR0A =  _BV(WGM01);  // CTC mode
   TCCR0B = _BV(CS02);  //prescaler at 256
   OCR0A = 5;
-  OCR0B = 0;
+  OCR0B = 1;
  
-  TCCR1A =  _BV(WGM12);  // CTC mode
-  TCCR1B = _BV(CS12);  //prescaler at 256
+  TCCR1B = _BV(WGM12) | _BV(CS12);  //CTC mode; prescaler at 256
   OCR1AH = high(MAX_TIMER);
   OCR1AL = low(MAX_TIMER);
   
   ACSR = _BV(ACD);  // выключаем Analog Comparator 
   
   // разрешение прерывания от таймеров
-  TIMSK = _BV(OCIE0A) | _BV(OCIE1A);
+  TIMSK = _BV(OCIE0A) | _BV(OCIE0B) | _BV(OCIE1A);
   
   ds1307_init();
+//   time[0]=1;time[1]=2;time[2]=3;time[3]=4;
+
+  // ds1307_settime(time);
+//  time[0]=2;time[1]=2;time[2]=5;time[3]=5;
+
+   ds1307_gettime(time);
+
   sei();
 
   for(;;)
   {
+    
     if(read_time)
     {
-      read_time = 0;
-      ds1307_gettime(time);
+          read_time = 0;
+          cli();    
+          ds1307_gettime(time);
+          sei();
     }
-    if(is_key_pressed())
+    if(key_pressed)
     {
+      cli();    
       ds1307_settime(time);
+      sei();
+      key_pressed = 0;
     }
-  
     
   }
 }

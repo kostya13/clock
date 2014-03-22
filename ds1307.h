@@ -24,6 +24,6 @@ References: parts of the code taken from https://github.com/adafruit/RTClib
 extern void ds1307_init(void);
 extern uint8_t ds1307_settime(uint8_t* time);
 extern void ds1307_gettime(uint8_t *time);
-
+ 
 #endif
 
