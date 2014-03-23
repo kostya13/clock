@@ -106,9 +106,8 @@ static inline void is_key_pressed(void)
     }
 
     if (time[M1]>5)
-      time[M2]=0;
+      time[M1]=0;
   }
-//      ds1307_settime(time);
 
   set_time =  1;    
 }
@@ -127,8 +126,6 @@ ISR (TIMER0_COMPB_vect)
 ISR (TIMER1_COMPA_vect)
 {
   get_time = 1;
-  //      ds1307_gettime(time);
-
 }
 
 int main(void)
