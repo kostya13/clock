@@ -32,6 +32,7 @@ const  int8_t led_digits[] = {64, 121, 36, 48, 25, 18, 2, 120, 0, 16};
 
 uint8_t time[4];
 
+
 volatile uint8_t get_time = 1;
 volatile uint8_t set_time = 0;
 
@@ -57,6 +58,12 @@ static inline void show_clock(void)
 
 static inline void is_key_pressed(void)
 {
+// соответсвие разрядов индикатора позиции в массиве времени
+  const uint8_t H1 = 0; //Hour - часы
+  const uint8_t H2 = 1;
+  const uint8_t M1 = 2; //Minute - минуты
+  const uint8_t M2 = 3;
+
   const uint8_t KEY_DELAY = 100;
   const uint8_t  ALL_KEYS = 3;
   const uint8_t  HOUR_KEY = 1;
@@ -79,27 +86,27 @@ static inline void is_key_pressed(void)
 //установка часов
   if (!(keys & HOUR_KEY) )
   {
-    time[1]++;
-    if ((time[1]>9 && time[0]<2) || (time[1]>3 && time[0]==2 )  )
+    time[H2]++;
+    if ((time[H2]>9 && time[H1]<2) || (time[H2]>3 && time[H1]==2 )  )
     {
-      time[1] = 0;
-      time[0]++;
+      time[H2] = 0;
+      time[H1]++;
     }
-    if (time[0]>2)
-      time[0]=0;
+    if (time[H1]>2)
+      time[H1]=0;
   }
   //установка минут
   else if ( !(keys & MINUTE_KEY))
   {
-    time[3]++;
-    if (time[3]>9)
+    time[M2]++;
+    if (time[M2]>9)
     {
-      time[3]=0;
-      time[2]++;
+      time[M2]=0;
+      time[M1]++;
     }
 
-    if (time[2]>5)
-      time[2]=0;
+    if (time[M1]>5)
+      time[M2]=0;
   }
 //      ds1307_settime(time);
 
