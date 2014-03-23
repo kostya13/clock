@@ -12,30 +12,22 @@
 
 #include "ds1307.h"
 
-#define TIMERB_FREQ 1UL // Требуемая частота таймера (Герц)
-#define TIMERB_PRESCALER 256 // Установить значение делителя таймера в TCCR1B (Bits 2:0)
-
-#define MAX_TIMERB  (F_CPU / TIMERB_PRESCALER) / TIMERB_FREQ // максимальное значение таймера в режиме CTC
-#if MAX_TIMERB > UINT16_MAX
-# error "MAX_TIMERB too large, need increase TIMER_PRESCALERB."
-#endif
-
 #define TIMERA_FREQ 300UL // Требуемая частота таймера (Герц)
 #define TIMERA_PRESCALER 256 // Установить значение делителя таймера в TCCR0A (Bits 2:0)
+// максимальное значение таймера в режиме CTC
+const uint8_t MAX_TIMERA = (F_CPU / TIMERA_PRESCALER) / TIMERA_FREQ;
 
-#define MAX_TIMERA  (F_CPU / TIMERA_PRESCALER) / TIMERA_FREQ // максимальное значение таймера в режиме CTC
-#if MAX_TIMERA > UINT8_MAX
-# error "MAX_TIMERA too large, need increase TIMER_PRESCALERA."
-#endif
+#define TIMERB_FREQ 1UL // Требуемая частота таймера (Герц)
+#define TIMERB_PRESCALER 256 // Установить значение делителя таймера в TCCR1B (Bits 2:0)
+// максимальное значение таймера в режиме CTC
+const uint16_t MAX_TIMERB = (F_CPU / TIMERB_PRESCALER) / TIMERB_FREQ;
+
 
 #define low(x)  ((x) & 0xFF)
 #define high(x) (((x) >> 8) & 0xFF)
 
 #define set_bit(port,bit)   port |= _BV(bit)
 #define reset_bit(port,bit) port &= ~(_BV(bit))
-
-#define FIRST_DIGIT 2
-#define LAST_DIGIT  5
 
 
 const  int8_t led_digits[] = {64, 121, 36, 48, 25, 18, 2, 120, 0, 16};
@@ -45,10 +37,12 @@ uint8_t time[4];
 volatile uint8_t get_time = 1;
 volatile uint8_t set_time = 0;
 
-volatile uint8_t delay = 0;
 
 static inline void show_clock(void)
 {
+  const uint8_t  FIRST_DIGIT = 2;
+  const uint8_t  LAST_DIGIT =  5;
+
   static  uint8_t current_digit = FIRST_DIGIT;
 
 //погасить текущий
@@ -64,12 +58,13 @@ static inline void show_clock(void)
   set_bit(PORTD, current_digit);
 }
 
-inline void is_key_pressed(void)
+static inline void is_key_pressed(void)
 {
   const uint8_t KEY_DELAY = 100;
   const uint8_t  ALL_KEYS = 3;
   const uint8_t  HOUR_KEY = 1;
   const uint8_t  MINUTE_KEY = 2;
+  static uint8_t delay = 0;
 
   if(set_time)
     return;
