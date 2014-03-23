@@ -22,13 +22,11 @@ const uint8_t MAX_TIMERA = (F_CPU / TIMERA_PRESCALER) / TIMERA_FREQ;
 // максимальное значение таймера в режиме CTC
 const uint16_t MAX_TIMERB = (F_CPU / TIMERB_PRESCALER) / TIMERB_FREQ;
 
-
 #define low(x)  ((x) & 0xFF)
 #define high(x) (((x) >> 8) & 0xFF)
 
 #define set_bit(port,bit)   port |= _BV(bit)
 #define reset_bit(port,bit) port &= ~(_BV(bit))
-
 
 const  int8_t led_digits[] = {64, 121, 36, 48, 25, 18, 2, 120, 0, 16};
 
@@ -36,7 +34,6 @@ uint8_t time[4];
 
 volatile uint8_t get_time = 1;
 volatile uint8_t set_time = 0;
-
 
 static inline void show_clock(void)
 {
