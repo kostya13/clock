@@ -12,6 +12,12 @@
 
 #include "ds1307.h"
 
+#define low(x)  ((x) & 0xFF)
+#define high(x) (((x) >> 8) & 0xFF)
+
+#define set_bit(port,bit)   port |= _BV(bit)
+#define reset_bit(port,bit) port &= ~(_BV(bit))
+
 #define TIMERA_FREQ 300UL // Требуемая частота таймера (Герц)
 #define TIMERA_PRESCALER 256 // Установить значение делителя таймера в TCCR0A (Bits 2:0)
 // максимальное значение таймера в режиме CTC
@@ -22,26 +28,25 @@ const uint8_t MAX_TIMERA = (F_CPU / TIMERA_PRESCALER) / TIMERA_FREQ;
 // максимальное значение таймера в режиме CTC
 const uint16_t MAX_TIMERB = (F_CPU / TIMERB_PRESCALER) / TIMERB_FREQ;
 
-#define low(x)  ((x) & 0xFF)
-#define high(x) (((x) >> 8) & 0xFF)
-
-#define set_bit(port,bit)   port |= _BV(bit)
-#define reset_bit(port,bit) port &= ~(_BV(bit))
-
 const  int8_t led_digits[] = {64, 121, 36, 48, 25, 18, 2, 120, 0, 16};
+
+// соответсвие разрядов индикатора позиции в массиве времени
+const uint8_t H1 = 0; //Hour - часы
+const uint8_t H2 = 1;
+const uint8_t M1 = 2; //Minute - минуты
+const uint8_t M2 = 3;
 
 uint8_t time[4];
 
-volatile uint8_t ds1307_error;
-
+volatile uint8_t ds1307_error = 0;
 volatile uint8_t get_time = 1;
 volatile uint8_t set_time = 0;
+
 
 static inline void show_clock(void)
 {
   const uint8_t  FIRST_DIGIT = 2;
   const uint8_t  LAST_DIGIT =  5;
-
   static  uint8_t current_digit = FIRST_DIGIT;
 
 //погасить текущий
@@ -59,12 +64,6 @@ static inline void show_clock(void)
 
 static inline void check_keys(void)
 {
-// соответсвие разрядов индикатора позиции в массиве времени
-  const uint8_t H1 = 0; //Hour - часы
-  const uint8_t H2 = 1;
-  const uint8_t M1 = 2; //Minute - минуты
-  const uint8_t M2 = 3;
-
   const uint8_t KEY_DELAY = 100; //задержка перед сменой цифры
   const uint8_t  ALL_KEYS = 3;
   const uint8_t  HOUR_KEY = 1;
@@ -163,10 +162,8 @@ int main(void)
       get_time = 0;
       if(ds1307_error)
       {
-        time[0] = 8;
-        time[1] = 8;
-        time[2] = 8;
-        time[3] = 8;    
+        time[H1] = 8; time[H2] = 8;
+        time[M1] = 8; time[M2] = 8;   
       }
     }
 
