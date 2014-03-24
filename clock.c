@@ -32,6 +32,7 @@ const  int8_t led_digits[] = {64, 121, 36, 48, 25, 18, 2, 120, 0, 16};
 
 uint8_t time[4];
 
+volatile uint8_t ds1307_error;
 
 volatile uint8_t get_time = 1;
 volatile uint8_t set_time = 0;
@@ -74,7 +75,7 @@ static inline void check_keys(void)
 
   uint8_t keys = PIND & ALL_KEYS;
   
-  if(keys < ALL_KEYS && delay < KEY_DELAY)
+  if(keys < ALL_KEYS && delay < KEY_DELAY && !ds1307_error)
     delay++;
   else  
     delay = 0;
@@ -158,13 +159,20 @@ int main(void)
   {
     if(get_time)
     {
-      ds1307_gettime(time);
+      ds1307_error = ds1307_gettime(time);
       get_time = 0;
+      if(ds1307_error)
+      {
+        time[0] = 8;
+        time[1] = 8;
+        time[2] = 8;
+        time[3] = 8;    
+      }
     }
 
     if(set_time)
     {
-      ds1307_settime(time);
+      ds1307_error = ds1307_settime(time);
       set_time = 0;
     }
   }
