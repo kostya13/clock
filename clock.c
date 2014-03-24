@@ -56,7 +56,7 @@ static inline void show_clock(void)
   set_bit(PORTD, current_digit);
 }
 
-static inline void is_key_pressed(void)
+static inline void check_keys(void)
 {
 // соответсвие разрядов индикатора позиции в массиве времени
   const uint8_t H1 = 0; //Hour - часы
@@ -64,10 +64,9 @@ static inline void is_key_pressed(void)
   const uint8_t M1 = 2; //Minute - минуты
   const uint8_t M2 = 3;
 
-  const uint8_t KEY_DELAY = 100;
+  const uint8_t KEY_DELAY = 100; //задержка перед сменой цифры
   const uint8_t  ALL_KEYS = 3;
   const uint8_t  HOUR_KEY = 1;
-  const uint8_t  MINUTE_KEY = 2;
   static uint8_t delay = 0;
 
   if(set_time)
@@ -84,32 +83,33 @@ static inline void is_key_pressed(void)
     return;
 
 //установка часов
-  if (!(keys & HOUR_KEY) )
+  if (!(keys & HOUR_KEY))
   {
     time[H2]++;
-    if ((time[H2]>9 && time[H1]<2) || (time[H2]>3 && time[H1]==2 )  )
+    if ((time[H1] <  2 && time[H2] > 9) ||
+        (time[H1] == 2 && time[H2] > 3))
     {
       time[H2] = 0;
       time[H1]++;
     }
-    if (time[H1]>2)
+    if (time[H1] > 2)
       time[H1]=0;
   }
   //установка минут
-  else if ( !(keys & MINUTE_KEY))
+  else 
   {
     time[M2]++;
-    if (time[M2]>9)
+    if (time[M2] > 9)
     {
-      time[M2]=0;
+      time[M2] = 0;
       time[M1]++;
     }
 
-    if (time[M1]>5)
-      time[M1]=0;
+    if (time[M1] > 5)
+      time[M1] = 0;
   }
 
-  set_time =  1;    
+  set_time = 1;    
 }
 
 ISR (TIMER0_COMPA_vect)
@@ -119,7 +119,7 @@ ISR (TIMER0_COMPA_vect)
 
 ISR (TIMER0_COMPB_vect)
 {
-  is_key_pressed();
+  check_keys();
 }
 
 // отсчет интервалов считывания показаний
@@ -130,13 +130,13 @@ ISR (TIMER1_COMPA_vect)
 
 int main(void)
 {
-  DDRB = 0xFF; // все на выход
+  DDRB = 0xFF; // все порты на выход
   PORTB = 0x00;
 
   DDRD =  0b11111100; // два порта на вход для кнопок
   PORTD = 0b00000011; // подтянуть к плюсу входы
   
-  TCCR0A =  _BV(WGM01);  // CTC mode
+  TCCR0A = _BV(WGM01);  // CTC mode
   TCCR0B = _BV(CS02);  //prescaler at 256
   OCR0A = MAX_TIMERA;
   OCR0B = 1;
@@ -168,4 +168,5 @@ int main(void)
       set_time = 0;
     }
   }
+  
 }
